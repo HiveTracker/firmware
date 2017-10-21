@@ -1,17 +1,14 @@
 #include <SPI.h> // BLEPeripheral depends on SPI
 #include <BLEPeripheral.h>
 #include "BLESerial.h"
-
-// create ble serial instance, see pinouts above
 BLESerial BLESerial(0,0,0);         // TODO: use constructor default values
 
-// LED pins
-int LEDpins[] = {17, 18, 19, 20};   // TODO with HiveTracker: 10, 12, 14
+int LEDpins[] = {10, 14, 12}; // R, G, B
 int LEDNum = sizeof LEDpins / sizeof LEDpins[0];
 bool state = 0;
 
+
 void setup() {
-    // custom services and characteristics can be added as well
     BLESerial.setLocalName("UART");
 
     Serial.begin(115200);
@@ -19,7 +16,9 @@ void setup() {
 
     for (int i=0; i<LEDNum; i++) {
         pinMode(LEDpins[i], OUTPUT);
-        digitalWrite(LEDpins[i], 0); // inverted logic
+        digitalWrite(LEDpins[i], 0); // 0 = ON (inverted logic)
+        delay(300);
+        digitalWrite(LEDpins[i], 1); // 1 = OFF (inverted logic)
     }
 }
 
@@ -63,3 +62,4 @@ void spam() {
 
     }
 }
+

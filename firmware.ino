@@ -1,3 +1,10 @@
+#include "customPinout.h"
+
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+Adafruit_BNO055 bno = Adafruit_BNO055();
+
 #include <SPI.h> // BLEPeripheral depends on SPI
 #include <BLEPeripheral.h>
 #include "BLESerial.h"
@@ -19,6 +26,13 @@ void setup() {
         digitalWrite(LEDpins[i], 0); // 0 = ON (inverted logic)
         delay(300);
         digitalWrite(LEDpins[i], 1); // 1 = OFF (inverted logic)
+    }
+
+    // Initialise the IMU
+    while(!bno.begin()) {
+        Serial.print("ERROR No BNO055 detected!"); // TODO: Use I2C ADDR / sensorID?
+
+        digitalWrite(12, 1);
     }
 }
 

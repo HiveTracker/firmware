@@ -184,6 +184,11 @@ void measureSweepPulse() {
                                                           nrf_timer_cc_channel_t(c));
         }
     }
+
+    Serial.print(" ");
+    Serial.print(pulse_data.captures[0][0]/16);
+    Serial.print(" ");
+
     pulse_data.isReady = true;
 
     armSyncPulse(); // prepare for next loop

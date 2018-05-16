@@ -2,6 +2,7 @@
 #include "pinout.h"
 #include "PPI.h"
 #include "Timer.h"
+#include <math.h>
 
 
 //#define DEBUG
@@ -118,18 +119,24 @@ void readSyncPulse(sync_pulse_t &pulse) {
                                                       nrf_timer_cc_channel_t(i));
     }
 
-    if (pulse_data.captures[0][1]/16. < 150 &&
-        pulse_data.captures[0][1]/16. > 60) {
+    int ticks16 = pulse_data.captures[0][1];
+
+    // TODO: analyse captures (average of 2 valid medians)
+    if ( ticks16 < 150 * 16. &&    // us to ticks
+         ticks16 > 60  * 16. ) {   // us to ticks
 
         pulse.valid = true;
-        Serial.print("x\n");
 
-        pulse.skip = (pulse_data.captures[0][1]/16. > 100);
+        Serial.print(pulse_data.captures[0][0]/16);
+
+        float ticks48 = ticks16 * 3; // convert to 48MHz ticks
+        pulse_data.axis = (int(round(ticks48 / 500.)) % 2);
+
+        Serial.print(pulse_data.axis);
+
+        pulse.skip = (pulse_data.captures[0][1] > 100*16); // 100us to ticks
     }
 
-    Serial.print(pulse_data.captures[0][0]/16);
-    Serial.print("\n");
-    // TODO: analyse captures (average of 2 valid medians)
 
 }
 

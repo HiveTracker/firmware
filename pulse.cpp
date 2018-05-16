@@ -73,9 +73,9 @@ void armSyncPulse() {
         PPI.setShortcut(PIN_LOW, TIMER_CAPTURE);
     }
 
-    // TODO: use constant [array] & margin constant?
+    // TODO: make it work and use constant [array] & margin constant?
     // +  explain timer stopped then started
-    //timer.attachInterrupt(&measureSyncPulse, 143); // microseconds
+  //  timer.attachInterrupt(&measureSyncPulse, 143); // microseconds
 
     // wait for negedge
     while (digitalRead(sensors[0]) == 0);
@@ -117,12 +117,16 @@ void readSyncPulse(sync_pulse_t &pulse) {
         pulse_data.captures[0][i] = nrf_timer_cc_read(nrf_timers[syncTimer],
                                                       nrf_timer_cc_channel_t(i));
     }
+
     if (pulse_data.captures[0][1]/16. < 150 &&
         pulse_data.captures[0][1]/16. > 60) {
 
         pulse.valid = true;
         Serial.print("x\n");
+
+        pulse.skip = (pulse_data.captures[0][1]/16. > 100);
     }
+
     Serial.print(pulse_data.captures[0][0]/16);
     Serial.print("\n");
     // TODO: analyse captures (average of 2 valid medians)

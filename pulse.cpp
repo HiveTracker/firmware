@@ -50,9 +50,6 @@ void pulseSetup() {
 
 
 void armSyncPulse() {
-    DEBUG_PRINT("*1\n");
-    digitalWrite(25, 1); digitalWrite(25, 0);
-
     PPI.resetChannels();
     for (int i=0; i<4; i++) {
         nrf_timer_cc_write(nrf_timers[syncTimer],
@@ -76,7 +73,7 @@ void armSyncPulse() {
 
     // TODO: make it work and use constant [array] & margin constant?
     // +  explain timer stopped then started
-  //  timer.attachInterrupt(&measureSyncPulse, 143); // microseconds
+    //  timer.attachInterrupt(&measureSyncPulse, 143); // microseconds
 
     // wait for negedge
     while (digitalRead(sensors[0]) == 0);
@@ -87,9 +84,6 @@ void armSyncPulse() {
 
 void measureSyncPulse() {
     PPI.resetChannels(); // TODO?
-    DEBUG_PRINT("#2\n");
-    digitalWrite(25, 1); digitalWrite(25, 0);
-    digitalWrite(25, 1); digitalWrite(25, 0);
 
     readSyncPulse(newPulse);
 
@@ -98,11 +92,6 @@ void measureSyncPulse() {
         pulse_data.baseID = oldPulse.valid; // 0 = A  -  B = 1
         oldPulse.valid = false;
         armSweepPulse();
-
-//      DEBUG_PRINT("ID: ");
-//      DEBUG_PRINT(pulse_data.baseID);
-//      DEBUG_PRINT("\n");
-
     } else {
         // otherwise try again
         oldPulse = newPulse; // TODO: union?
@@ -112,8 +101,6 @@ void measureSyncPulse() {
 
 
 void readSyncPulse(sync_pulse_t &pulse) {
-    DEBUG_PRINT("*3\n");
-
     for (int i = 0; i < 4; i++) {
         pulse_data.captures[0][i] = nrf_timer_cc_read(nrf_timers[syncTimer],
                                                       nrf_timer_cc_channel_t(i));
@@ -127,19 +114,12 @@ void readSyncPulse(sync_pulse_t &pulse) {
 
         pulse.valid = true;
 
-        Serial.print(pulse_data.captures[0][0]/16);
-
         float ticks48 = ticks16 * 3; // convert to 48MHz ticks
         pulse_data.axis = (int(round(ticks48 / 500.)) % 2);
 
-        Serial.print(pulse_data.axis);
-
         pulse.skip = (pulse_data.captures[0][1] > 100*16); // 100us to ticks
     }
-
-
 }
-
 
 
 // Time stamp both rising and falling edges for the 4 photodiodes
@@ -148,11 +128,6 @@ void readSyncPulse(sync_pulse_t &pulse) {
 // Timer F: sensor 2: channels: 0, 1 captures: 4, 5 (rising, falling edge)
 //          sensor 3: channels: 2, 3 captures: 6, 7 (rising, falling edge)
 void armSweepPulse() {
-    DEBUG_PRINT("$4\n");
-    digitalWrite(25, 1); digitalWrite(25, 0);
-    digitalWrite(25, 1); digitalWrite(25, 0);
-    digitalWrite(25, 1); digitalWrite(25, 0);
-    digitalWrite(25, 1); digitalWrite(25, 0);
     PPI.resetChannels();
 
     for (int i = 0; i < 4; i++) {
@@ -170,13 +145,6 @@ void armSweepPulse() {
 
 
 void measureSweepPulse() {
-    DEBUG_PRINT("+5\n");
-    digitalWrite(25, 1); digitalWrite(25, 0);
-    digitalWrite(25, 1); digitalWrite(25, 0);
-    digitalWrite(25, 1); digitalWrite(25, 0);
-    digitalWrite(25, 1); digitalWrite(25, 0);
-    digitalWrite(25, 1); digitalWrite(25, 0);
-
     // Timers S and F, on 4 channels (0 to 3)
     for (int t = 0; t < 2; t++) {
         for (int c = 0; c < 4; c++) {
@@ -185,9 +153,6 @@ void measureSweepPulse() {
         }
     }
 
-    Serial.print(" ");
-    Serial.print(pulse_data.captures[0][0]/16);
-    Serial.print(" ");
 
     pulse_data.isReady = true;
 

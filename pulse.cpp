@@ -150,12 +150,40 @@ void measureSweepPulse() {
         for (int c = 0; c < 4; c++) {
             pulse_data.captures[t][c] = nrf_timer_cc_read(nrf_timers[timerNumbers[t]],
                                                           nrf_timer_cc_channel_t(c));
+            pulse_data.captures[t][c] /= 16; // convert to microsec
         }
     }
 
+#if 0
+    // Send data:
+    Serial.print(pulse_data.baseID);
+    Serial.print(pulse_data.axis);
+
+    for (int t = 0; t < 2; t++) {
+        for (int c = 0; c < 4; c += 2) {
+            int sum = pulse_data.captures[t][c] + pulse_data.captures[t][c+1];
+            Serial.print('\t');
+            Serial.print(sum /= 2); // send centroid
+        }
+    }
+    Serial.print('\n');
+#else
+    // Send binary data:
+    Serial.write(0xFF);
+    Serial.write(0xFF);
+    uint8_t base_axis = pulse_data.baseID << 1  |  pulse_data.axis;
+    Serial.write(base_axis);
+    for (int t = 0; t < 2; t++) {
+        for (int c = 0; c < 4; c += 2) {
+            int sum = pulse_data.captures[t][c] + pulse_data.captures[t][c+1];
+            sum /= 2;                 // compute centroid
+            Serial.write(sum & 0xFF); // invert endianness
+            Serial.write(sum >> 8);
+        }
+    }
+#endif
 
     pulse_data.isReady = true;
-
     armSyncPulse(); // prepare for next loop
 }
 

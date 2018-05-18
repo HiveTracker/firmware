@@ -25,8 +25,8 @@ TimerClass timer(2);
 
 ///////////////////////////////////////////////////////////
 // TMP // TODO: remove!!
-const int sensors[] = {sensors_e[1], sensors_e[1],
-                       sensors_e[0], sensors_e[0]};
+const int sensors[] = {sensors_d[1], sensors_e[1],
+                       sensors_d[0], sensors_e[0]};
 ///////////////////////////////////////////////////////////
 
 // forward declarations (below order should help readability)

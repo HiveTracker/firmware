@@ -1,6 +1,8 @@
 #ifndef PULSE_H
 #define PULSE_H
 
+#include <math.h>
+
 
 typedef struct {
     int captures[2][4] = {{0}}; // 2 timers, 4 channels
@@ -14,8 +16,17 @@ const int forkTimer = 4;
 
 const int timerNumbers[] = {syncTimer, forkTimer};
 
+const int microSecToTicks = 16; // because 16MHz
 
-    /* TODO array
+const int margin = 10;          // microsec
+const int minSyncPulseWidth = (62.5 - margin) * microSecToTicks;
+const int maxSyncPulseWidth = (135  + margin) * microSecToTicks;
+const int skipThreshold = (104 + ceil(93.8)) / 2;
+
+const int interSyncOffset = 400; // microsec
+
+
+    /* Sync pulse timings - a 10us margins is good practice
     j0	0	0	0	3000	62.5
     k0	0	0	1	3500	72.9
     j1	0	1	0	4000	83.3
@@ -26,6 +37,10 @@ const int timerNumbers[] = {syncTimer, forkTimer};
     k3	1	1	1	6500	135
     */
 
+const int minSweepPulseWidth = 1  * microSecToTicks;
+const int maxSweepPulseWidth = 15 * microSecToTicks;
+
+const int sweepEndTime = 6777 + margin; // microsec
 
 void pulseSetup();
 

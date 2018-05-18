@@ -24,7 +24,7 @@ sync_pulse_t newPulse, oldPulse;
 TimerClass timer(2);
 
 ///////////////////////////////////////////////////////////
-// TMP
+// TMP // TODO: remove!!
 const int sensors[] = {sensors_e[1], sensors_e[1],
                        sensors_e[0], sensors_e[0]};
 ///////////////////////////////////////////////////////////
@@ -51,11 +51,13 @@ void pulseSetup() {
 
 void armSyncPulse() {
     PPI.resetChannels();
+
+    // Clear old measures in case of missed signal:
     for (int i=0; i<4; i++) {
         nrf_timer_cc_write(nrf_timers[syncTimer],
-                nrf_timer_cc_channel_t(i), 0); // TODO: check
+                nrf_timer_cc_channel_t(i), 0);
         nrf_timer_cc_write(nrf_timers[forkTimer],
-                nrf_timer_cc_channel_t(i), 0); // TODO: check
+                nrf_timer_cc_channel_t(i), 0);
     }
 
     PPI.setTimer(syncTimer);
@@ -71,19 +73,15 @@ void armSyncPulse() {
         PPI.setShortcut(PIN_LOW, TIMER_CAPTURE);
     }
 
-    // TODO: make it work and use constant [array] & margin constant?
-    // +  explain timer stopped then started
-    //  timer.attachInterrupt(&measureSyncPulse, 143); // microseconds
-
     // wait for negedge
     while (digitalRead(sensors[0]) == 0);
     while (digitalRead(sensors[0]) == 1);
-    measureSyncPulse(); // TODO do it in loop
+    measureSyncPulse();
 }
 
 
 void measureSyncPulse() {
-    PPI.resetChannels(); // TODO?
+    PPI.resetChannels();
 
     readSyncPulse(newPulse);
 
@@ -94,30 +92,34 @@ void measureSyncPulse() {
         armSweepPulse();
     } else {
         // otherwise try again
-        oldPulse = newPulse; // TODO: union?
-        armSyncPulse();
+        oldPulse = newPulse;
+        armSyncPulse();         // TODO implement a fail counter
     }
 }
 
 
 void readSyncPulse(sync_pulse_t &pulse) {
     for (int i = 0; i < 4; i++) {
-        pulse_data.captures[0][i] = nrf_timer_cc_read(nrf_timers[syncTimer],
-                                                      nrf_timer_cc_channel_t(i));
-    }
+        pulse_data.captures[0][i] =
+                nrf_timer_cc_read(nrf_timers[syncTimer],
+                                  nrf_timer_cc_channel_t(i));
 
-    int ticks16 = pulse_data.captures[0][1];
+        // Look for at least 1 valid pulse                        TODO: make it smarter?
+        int pulseWidthTicks16 = pulse_data.captures[0][i]; // 16 MHz
 
-    // TODO: analyse captures (average of 2 valid medians)
-    if ( ticks16 < 150 * 16. &&    // us to ticks
-         ticks16 > 60  * 16. ) {   // us to ticks
+        if ( pulseWidthTicks16 > minSyncPulseWidth &&    // ticks
+             pulseWidthTicks16 < maxSyncPulseWidth ) {   // ticks
 
-        pulse.valid = true;
+            float pulseWidthTicks48 = pulseWidthTicks16 * 3; // convert to 48MHz ticks
 
-        float ticks48 = ticks16 * 3; // convert to 48MHz ticks
-        pulse_data.axis = (int(round(ticks48 / 500.)) % 2);
+            // for the following calculation, consult "Sync pulse timings" in .h file
+            pulse_data.axis = (int(round(pulseWidthTicks48 / 500.)) % 2);
 
-        pulse.skip = (pulse_data.captures[0][1] > 100*16); // 100us to ticks
+            pulse.skip = (pulse_data.captures[0][i] > skipThreshold); // 100us to ticks
+
+            pulse.valid = true;
+            break;
+        }
     }
 }
 
@@ -155,7 +157,7 @@ void measureSweepPulse() {
     }
 
 #if 0
-    // Send data:
+    // Send readable data:
     Serial.print(pulse_data.baseID);
     Serial.print(pulse_data.axis);
 

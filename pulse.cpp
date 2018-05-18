@@ -40,7 +40,7 @@ void armSyncPulse() {
     PPI.resetChannels();
 
     // Clear old measures in case of missed signal:
-    for (int i=0; i<4; i++) {
+    for (int i = 0; i < sensors_num; i++) {
         nrf_timer_cc_write(nrf_timers[syncTimer],
                 nrf_timer_cc_channel_t(i), 0);
         nrf_timer_cc_write(nrf_timers[forkTimer],
@@ -50,7 +50,7 @@ void armSyncPulse() {
     PPI.setTimer(syncTimer);
 
     // sync timers using all photodiodes
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < sensors_num; i++) {
         PPI.setInputPin(sensors_e[i]);
 
         // clear both timers using all photodiodes...
@@ -86,7 +86,7 @@ void measureSyncPulse() {
 
 
 void readSyncPulse(sync_pulse_t &pulse) {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < sensors_num; i++) {
         pulse_data.captures[0][i] =
                 nrf_timer_cc_read(nrf_timers[syncTimer],
                                   nrf_timer_cc_channel_t(i));
@@ -119,7 +119,7 @@ void readSyncPulse(sync_pulse_t &pulse) {
 void armSweepPulse() {
     PPI.resetChannels();
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < sensors_num; i++) {
         PPI.setTimer(timerNumbers[i/2]);            // sync & fork timers
 
         PPI.setInputPin(sensors_e[i]);              // diode 0 to 3
@@ -139,7 +139,7 @@ void armSweepPulse() {
 void measureSweepPulse() {
     // Timers S and F, on 4 channels (0 to 3)
     for (int t = 0; t < 2; t++) {
-        for (int c = 0; c < 4; c++) {
+        for (int c = 0; c < sensors_num; c++) {
             pulse_data.captures[t][c] = nrf_timer_cc_read(nrf_timers[timerNumbers[t]],
                                                           nrf_timer_cc_channel_t(c));
         }
@@ -173,7 +173,7 @@ void sendPulseData() {
     uint8_t base_axis = pulse_data.baseID << 1  |  pulse_data.axis;
     Serial.write(base_axis);
     for (int t = 0; t < 2; t++) {
-        for (int c = 0; c < 4; c += 2) {
+        for (int c = 0; c < sensors_num; c += 2) {
 
             int pulseWidthTicks16 = pulse_data.captures[t][c+1]
                                     - pulse_data.captures[t][c];

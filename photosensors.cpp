@@ -11,11 +11,8 @@ TS4231 devices[] = { TS4231(sensors_e[0], sensors_d[0]),
                      TS4231(sensors_e[2], sensors_d[2]),
                      TS4231(sensors_e[3], sensors_d[3]) };
 
-int deviceNum = sizeof devices / sizeof devices[0];
-
-
 void photosensorSetup() {
-    for (int i = 0; i < deviceNum; i++) {
+    for (int i = 0; i < sensors_num; i++) {
         if (devices[i].waitForLight(light_timeout)) {
             DEBUG_PRINTLN("LD"); // Light Detected
 

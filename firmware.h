@@ -1,8 +1,9 @@
 #ifndef _FIRMWARE_H_
 #define _FIRMWARE_H_
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
+#include "Arduino.h"
 #define DEBUG_PRINT(x)     Serial.print(x)
 #define DEBUG_PRINTLN(x)   Serial.println(x)
 #else

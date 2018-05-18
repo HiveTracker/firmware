@@ -35,6 +35,7 @@ void measureSyncPulse();
 void readSyncPulse(sync_pulse_t &pulse);
 void armSweepPulse();
 void measureSweepPulse();
+void sendPulseData();
 
 
 void pulseSetup() {
@@ -155,10 +156,28 @@ void measureSweepPulse() {
         for (int c = 0; c < 4; c++) {
             pulse_data.captures[t][c] = nrf_timer_cc_read(nrf_timers[timerNumbers[t]],
                                                           nrf_timer_cc_channel_t(c));
-            pulse_data.captures[t][c] /= 16; // convert to microsec
+
+            int pulseWidthTicks16 = pulse_data.captures[t][c]; // 16 MHz
+
+            if ( pulseWidthTicks16 > minSweepPulseWidth &&     // ticks
+                 pulseWidthTicks16 < maxSweepPulseWidth ) {    // ticks
+
+                pulse_data.captures[t][c] /= microSecToTicks; // convert to microsec
+            }
+            else {
+                pulse_data.captures[t][c] = 0; // invalid pulse // TODO use it later
+            }
         }
     }
 
+    sendPulseData(); // TODO: take it out of this file!
+
+    pulse_data.isReady = true;
+    armSyncPulse(); // prepare for next loop
+}
+
+
+void sendPulseData() {
 #if 0
     // Send readable data:
     Serial.print(pulse_data.baseID);
@@ -187,10 +206,8 @@ void measureSweepPulse() {
         }
     }
 #endif
-
-    pulse_data.isReady = true;
-    armSyncPulse(); // prepare for next loop
 }
+
 
 pulse_data_t pulse_data;
 

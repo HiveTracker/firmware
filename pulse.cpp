@@ -156,17 +156,6 @@ void measureSweepPulse() {
         for (int c = 0; c < 4; c++) {
             pulse_data.captures[t][c] = nrf_timer_cc_read(nrf_timers[timerNumbers[t]],
                                                           nrf_timer_cc_channel_t(c));
-
-            int pulseWidthTicks16 = pulse_data.captures[t][c]; // 16 MHz
-
-            if ( pulseWidthTicks16 > minSweepPulseWidth &&     // ticks
-                 pulseWidthTicks16 < maxSweepPulseWidth ) {    // ticks
-
-                pulse_data.captures[t][c] /= microSecToTicks; // convert to microsec
-            }
-            else {
-                pulse_data.captures[t][c] = 0; // invalid pulse // TODO use it later
-            }
         }
     }
 
@@ -199,10 +188,22 @@ void sendPulseData() {
     Serial.write(base_axis);
     for (int t = 0; t < 2; t++) {
         for (int c = 0; c < 4; c += 2) {
-            int sum = pulse_data.captures[t][c] + pulse_data.captures[t][c+1];
-            sum /= 2;                 // compute centroid
-            Serial.write(sum & 0xFF); // invert endianness
-            Serial.write(sum >> 8);
+
+            int pulseWidthTicks16 = pulse_data.captures[t][c+1]
+                                    - pulse_data.captures[t][c];
+
+            if ( pulseWidthTicks16 > minSweepPulseWidth &&     // ticks
+                 pulseWidthTicks16 < maxSweepPulseWidth ) {    // ticks
+
+                int sum = pulse_data.captures[t][c] + pulse_data.captures[t][c+1];
+                sum /= 2 * ticksPerMicrosec; // compute centroid (average) and convert to microsec
+                Serial.write(sum & 0xFF);    // invert endianness
+                Serial.write(sum >> 8);
+            }
+            else {
+                Serial.write(uint8_t(0)); // Invalid...
+                Serial.write(uint8_t(0)); // ...pulse
+            }
         }
     }
 #endif

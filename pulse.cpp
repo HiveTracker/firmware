@@ -140,9 +140,12 @@ void armSweepPulse() {
         PPI.setShortcut(PIN_LOW,  TIMER_CAPTURE);   // channel i*2 + 1
     }
 
-    // TODO: use constant [array] & margin constant?
-    // +  explain timer stopped then started
-    timer.attachInterrupt(&measureSweepPulse, 7000); // microseconds
+    // compute data collection time by removing the base offset
+    int collectionTime = sweepEndTime;
+    if (pulse_data.baseID == 1)
+        collectionTime -= interSyncOffset; // microsec
+
+    timer.attachInterrupt(&measureSweepPulse, collectionTime);
 }
 
 

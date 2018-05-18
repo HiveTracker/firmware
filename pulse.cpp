@@ -15,11 +15,6 @@ sync_pulse_t newPulse, oldPulse;
 
 TimerClass timer(2);
 
-///////////////////////////////////////////////////////////
-// TMP // TODO: remove!!
-const int sensors[] = {sensors_d[1], sensors_e[1],
-                       sensors_d[0], sensors_e[0]};
-///////////////////////////////////////////////////////////
 
 // forward declarations (below order should help readability)
 void armSyncPulse();
@@ -31,8 +26,7 @@ void sendPulseData();
 
 
 void pulseSetup() {
-    for (int i = 0; i < sensors_num; i++)   // TODO TS4231 setup
-        pinMode(sensors[i], INPUT);         // TODO remove!
+    photosensorSetup();
 
     // start timers, they will be sync'ed (reset) in PPI
     nrf_timer_task_trigger(nrf_timers[syncTimer], NRF_TIMER_TASK_START);
@@ -57,7 +51,7 @@ void armSyncPulse() {
 
     // sync timers using all photodiodes
     for (int i = 0; i < 4; i++) {
-        PPI.setInputPin(sensors[i]);
+        PPI.setInputPin(sensors_e[i]);
 
         // clear both timers using all photodiodes...
         PPI.setShortcut(PIN_HIGH, TIMER_CLEAR, forkTimer);
@@ -67,8 +61,8 @@ void armSyncPulse() {
     }
 
     // wait for negedge
-    while (digitalRead(sensors[0]) == 0);
-    while (digitalRead(sensors[0]) == 1);
+    while (digitalRead(sensors_e[0]) == 0);
+    while (digitalRead(sensors_e[0]) == 1);
     measureSyncPulse();
 }
 
@@ -128,7 +122,7 @@ void armSweepPulse() {
     for (int i = 0; i < 4; i++) {
         PPI.setTimer(timerNumbers[i/2]);            // sync & fork timers
 
-        PPI.setInputPin(sensors[i]);                // diode 0 to 3
+        PPI.setInputPin(sensors_e[i]);              // diode 0 to 3
         PPI.setShortcut(PIN_HIGH, TIMER_CAPTURE);   // channel i*2
         PPI.setShortcut(PIN_LOW,  TIMER_CAPTURE);   // channel i*2 + 1
     }

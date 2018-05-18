@@ -1,18 +1,10 @@
+#include <math.h>
 #include "pulse.h"
 #include "pinout.h"
 #include "PPI.h"
 #include "Timer.h"
-#include <math.h>
-
-
-//#define DEBUG
-#ifdef DEBUG
-#define DEBUG_PRINT(x)     Serial.print(x)
-#define DEBUG_PRINTLN(x)   Serial.println(x)
-#else
-#define DEBUG_PRINT(x)
-#define DEBUG_PRINTLN(x)
-#endif
+#include "photosensors.h"
+#include "firmware.h"
 
 typedef struct {
     bool valid;

@@ -1,8 +1,5 @@
 #include "pinout.h"
 #include "pulse.h"
-#include "PPI.h"
-#include "Timer.h"
-#include "nRF_SDK/nrf_timer.h"
 
 void setup() {
     Serial.setPins(0, PIN_SERIAL_TX); // RX is not used here

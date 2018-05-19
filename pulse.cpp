@@ -186,8 +186,8 @@ void sendPulseData() {
             if ( pulseWidthTicks16 < minSweepPulseWidth ||     // ticks
                  pulseWidthTicks16 > maxSweepPulseWidth ) {    // ticks
                 // mark the measures if they are invalid
-                pulseStart = 0;
-                pulseEnd = 0;
+                pulseStart *= -1;
+                pulseEnd *= -1;
             }
 
             // remove 2 LSb (non-significant) to send data on 16 bits

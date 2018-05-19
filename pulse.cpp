@@ -190,6 +190,10 @@ void sendPulseData() {
                 pulseEnd = 0;
             }
 
+            // remove 2 LSb (non-significant) to send data on 16 bits
+            pulseStart >>= 2;
+            pulseEnd >>= 2;
+
             Serial.write((pulseStart >> 0) & 0xFF);    // LSB first
             Serial.write((pulseStart >> 8) & 0xFF);    // MSB last
 

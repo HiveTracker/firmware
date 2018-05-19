@@ -54,15 +54,15 @@ void armSyncPulse() {
         PPI.setInputPin(sensors_e[i]);
 
         // clear both timers using all photodiodes...
-        PPI.setShortcut(PIN_HIGH, TIMER_CLEAR, forkTimer);
+        PPI.setShortcut(PIN_LOW, TIMER_CLEAR, forkTimer);
 
         // ...and capture pulse widths on timer 1
-        PPI.setShortcut(PIN_LOW, TIMER_CAPTURE);
+        PPI.setShortcut(PIN_HIGH, TIMER_CAPTURE);
     }
 
-    // wait for negedge
-    while (digitalRead(sensors_e[0]) == 0);
+    // wait for posedge
     while (digitalRead(sensors_e[0]) == 1);
+    while (digitalRead(sensors_e[0]) == 0);
     measureSyncPulse();
 }
 
@@ -123,8 +123,8 @@ void armSweepPulse() {
         PPI.setTimer(timerNumbers[i/2]);            // sync & fork timers
 
         PPI.setInputPin(sensors_e[i]);              // diode 0 to 3
-        PPI.setShortcut(PIN_HIGH, TIMER_CAPTURE);   // channel i*2
-        PPI.setShortcut(PIN_LOW,  TIMER_CAPTURE);   // channel i*2 + 1
+        PPI.setShortcut(PIN_LOW, TIMER_CAPTURE);   // channel i*2
+        PPI.setShortcut(PIN_HIGH,  TIMER_CAPTURE);   // channel i*2 + 1
     }
 
     // compute data collection time by removing the base offset

@@ -155,6 +155,7 @@ void measureSweepPulse() {
 void sendPulseData() {
 #if 0
     // Send readable data:
+
     Serial.print(pulse_data.baseID);
     Serial.print(pulse_data.axis);
 
@@ -168,28 +169,32 @@ void sendPulseData() {
     Serial.print('\n');
 #else
     // Send binary data:
-    Serial.write(0xFF);
-    Serial.write(0xFF);
+
+    Serial.write(0xFF); Serial.write(0xFF);         // send start headers
+
     uint8_t base_axis = pulse_data.baseID << 1  |  pulse_data.axis;
-    Serial.write(base_axis);
-    for (int t = 0; t < 2; t++) {
+    Serial.write(base_axis);                        // send base ID and axis
+
+    for (int t = 0; t < 2; t++) {                   // send captures
         for (int c = 0; c < sensors_num; c += 2) {
 
-            int pulseWidthTicks16 = pulse_data.captures[t][c+1]
-                                    - pulse_data.captures[t][c];
+            // Invalid pulse by default
+            int pulseStart = pulse_data.captures[t][c];
+            int pulseEnd = pulse_data.captures[t][c+1];
+            int pulseWidthTicks16 = pulseEnd - pulseStart;
 
-            if ( pulseWidthTicks16 > minSweepPulseWidth &&     // ticks
-                 pulseWidthTicks16 < maxSweepPulseWidth ) {    // ticks
+            if ( pulseWidthTicks16 < minSweepPulseWidth ||     // ticks
+                 pulseWidthTicks16 > maxSweepPulseWidth ) {    // ticks
+                // mark the measures if they are invalid
+                pulseStart = 0;
+                pulseEnd = 0;
+            }
 
-                int sum = pulse_data.captures[t][c] + pulse_data.captures[t][c+1];
-                sum /= 2 * ticksPerMicrosec; // compute centroid (average) and convert to microsec
-                Serial.write(sum & 0xFF);    // invert endianness
-                Serial.write(sum >> 8);
-            }
-            else {
-                Serial.write(uint8_t(0)); // Invalid...
-                Serial.write(uint8_t(0)); // ...pulse
-            }
+            Serial.write((pulseStart >> 0) & 0xFF);    // LSB first
+            Serial.write((pulseStart >> 8) & 0xFF);    // MSB last
+
+            Serial.write((pulseEnd >> 0) & 0xFF);    // LSB first
+            Serial.write((pulseEnd >> 8) & 0xFF);    // MSB last
         }
     }
 #endif

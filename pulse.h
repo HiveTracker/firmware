@@ -38,7 +38,7 @@ const int interSyncOffset = 400; // microsec
     */
 
 const int minSweepPulseWidth = 1  * ticksPerMicrosec;
-const int maxSweepPulseWidth = 15 * ticksPerMicrosec;
+const int maxSweepPulseWidth = 35 * ticksPerMicrosec;
 
 const int sweepEndTime = 6777 + margin; // microsec
 

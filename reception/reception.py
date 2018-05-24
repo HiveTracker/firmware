@@ -3,6 +3,7 @@
 import glob
 import serial
 import sys
+import platform
 
 DEBUG_PRINT = 0
 
@@ -22,7 +23,16 @@ def main():
 
 ###############################################################################
 def serial_init():
-    devices = glob.glob("/dev/ttyUSB*")           # TODO make it cross platform
+    PLATFORM = platform.system()
+    if "Linux" in PLATFORM:
+        SERIAL_PATH = "/dev/ttyUSB*"
+    elif "Darwin" in PLATFORM:
+        SERIAL_PATH = "/dev/tty.usb*"   # TODO: test it
+    else: # Windows
+        SERIAL_PATH = "COM*"            # TODO: test it
+
+    devices = glob.glob(SERIAL_PATH)
+
     if DEBUG_PRINT: print devices
     port = serial.Serial(devices[0], 115200 * 2)
     success = port.isOpen()

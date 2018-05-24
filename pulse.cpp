@@ -184,7 +184,10 @@ void sendPulseData() {
             int pulseWidthTicks16 = pulseEnd - pulseStart;
 
             if ( pulseWidthTicks16 < minSweepPulseWidth ||     // ticks
-                 pulseWidthTicks16 > maxSweepPulseWidth ) {    // ticks
+                 pulseWidthTicks16 > maxSweepPulseWidth ||     // ticks
+                 pulseStart < sweepStartTicks           ||     // ticks
+                 pulseEnd   > sweepEndTicks ) {                // ticks
+
                 // mark the measures if they are invalid
                 pulseStart *= -1;
                 pulseEnd *= -1;

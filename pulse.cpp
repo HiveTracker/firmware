@@ -1,7 +1,7 @@
 #include <math.h>
 #include "pulse.h"
-#include "pinout.h"
 #include "PPI.h"
+#include "pinout.h" // important to keep it last for the undefs to work
 #include "Timer.h"
 #include "photosensors.h"
 #include "firmware.h"

@@ -1,5 +1,5 @@
-#include "pinout.h"
 #include "pulse.h"
+#include "pinout.h" // important to keep it last for the undefs to work
 
 void setup() {
     Serial.setPins(0, PIN_SERIAL_TX); // RX is not used here

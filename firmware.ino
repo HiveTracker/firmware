@@ -12,11 +12,9 @@ BLESerial BLESerial(0,0,0);         // TODO: use constructor default values
 
 int LEDpins[] = {10, 14, 12}; // R, G, B
 int LEDNum = sizeof LEDpins / sizeof LEDpins[0];
-bool state = 0;
 
 
 void setup() {
-
     for (int i=0; i<LEDNum; i++) {
         pinMode(LEDpins[i], OUTPUT);
         digitalWrite(LEDpins[i], 0); // 0 = ON (inverted logic)
@@ -45,11 +43,10 @@ void setup() {
 }
 
 void loop() {
+    static bool state = 0;
     BLESerial.poll();
 
-    forward();
-    loopback();
-    spam();
+    sendIMUdata();
 
     for (int i=0; i<LEDNum; i++)
         digitalWrite(LEDpins[i], state);
@@ -57,6 +54,14 @@ void loop() {
     delay(50);
 }
 
+// Send gravity vector on [BLE]serial ports.
+void sendIMUdata() {
+  imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+
+  BLESerial.println(euler.z());
+  Serial.print(     euler.z(), 3); // 3 decimals seem sufficient
+  Serial.print('\n');
+}
 
 // forward received from Serial to BLESerial and vice versa
 void forward() {
@@ -72,16 +77,6 @@ void loopback() {
     if (BLESerial) {
         int byte;
         while ((byte = BLESerial.read()) > 0) BLESerial.write(byte);
-    }
-}
-
-// periodically sent time stamps
-void spam() {
-    if (BLESerial) {
-        BLESerial.print(millis());
-        BLESerial.println(" tick-tacks!");
-        delay(100);
-
     }
 }
 

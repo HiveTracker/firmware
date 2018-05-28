@@ -8,7 +8,7 @@ Adafruit_BNO055 bno;
 #include <SPI.h> // BLEPeripheral depends on SPI
 #include <BLEPeripheral.h>
 #include "BLESerial.h"
-BLESerial BLESerial(0,0,0);         // TODO: use constructor default values
+BLESerial BLESerial;
 
 int LEDpins[] = {10, 14, 12}; // R, G, B
 int LEDNum = sizeof LEDpins / sizeof LEDpins[0];
@@ -58,7 +58,9 @@ void loop() {
 void sendIMUdata() {
   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
 
-  BLESerial.println(euler.z());
+  if (BLESerial)
+      BLESerial.println(euler.z());
+
   Serial.print(     euler.z(), 3); // 3 decimals seem sufficient
   Serial.print('\n');
 }

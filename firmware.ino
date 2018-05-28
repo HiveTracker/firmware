@@ -16,8 +16,6 @@ bool state = 0;
 
 
 void setup() {
-    BLESerial.setLocalName("UART");
-    BLESerial.begin();
 
     for (int i=0; i<LEDNum; i++) {
         pinMode(LEDpins[i], OUTPUT);
@@ -38,6 +36,9 @@ void setup() {
 
         digitalWrite(12, 1);
     }
+
+    BLESerial.setLocalName("UART");
+    BLESerial.begin();
 }
 
 void loop() {

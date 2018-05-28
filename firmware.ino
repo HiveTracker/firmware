@@ -17,8 +17,6 @@ bool state = 0;
 
 void setup() {
     BLESerial.setLocalName("UART");
-
-    Serial.begin(115200);
     BLESerial.begin();
 
     for (int i=0; i<LEDNum; i++) {
@@ -27,6 +25,10 @@ void setup() {
         delay(300);
         digitalWrite(LEDpins[i], 1); // 1 = OFF (inverted logic)
     }
+
+    Serial.setPins(0, PIN_SERIAL_TX); // RX is not used here
+    Serial.begin(115200);
+    Serial.println("Starting Serial...");
 
     // Initialise the IMU
     Wire.setPins(PIN_WIRE_SDA, PIN_WIRE_SCL);

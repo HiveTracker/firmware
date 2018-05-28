@@ -20,7 +20,7 @@ void setup() {
     for (int i=0; i<LEDNum; i++) {
         pinMode(LEDpins[i], OUTPUT);
         digitalWrite(LEDpins[i], 0); // 0 = ON (inverted logic)
-        delay(300);
+        delay(100);
         digitalWrite(LEDpins[i], 1); // 1 = OFF (inverted logic)
     }
 
@@ -32,9 +32,11 @@ void setup() {
     Wire.setPins(PIN_WIRE_SDA, PIN_WIRE_SCL);
     bno = Adafruit_BNO055();
     while(!bno.begin()) {
-        Serial.print("ERROR No BNO055 detected!"); // TODO: Use I2C ADDR / sensorID?
-
-        digitalWrite(12, 1);
+        Serial.println("ERROR: BNO055 not detected!"); // TODO: Use I2C ADDR / sensorID?
+        digitalWrite(LEDpins[2], 1);
+        delay(100);
+        digitalWrite(LEDpins[2], 0);
+        delay(100);
     }
 
     BLESerial.setLocalName("UART");

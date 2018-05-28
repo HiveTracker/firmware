@@ -62,21 +62,3 @@ void sendIMUdata() {
   Serial.print(     euler.z(), 3); // 3 decimals seem sufficient
   Serial.print('\n');
 }
-
-// forward received from Serial to BLESerial and vice versa
-void forward() {
-    if (BLESerial && Serial) {
-        int byte;
-        while ((byte = BLESerial.read()) > 0) Serial.write((char)byte);
-        while ((byte = Serial.read()) > 0) BLESerial.write((char)byte);
-    }
-}
-
-// echo all received data back
-void loopback() {
-    if (BLESerial) {
-        int byte;
-        while ((byte = BLESerial.read()) > 0) BLESerial.write(byte);
-    }
-}
-

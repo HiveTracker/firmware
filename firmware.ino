@@ -51,7 +51,7 @@ void loop() {
     for (int i=0; i<LEDNum; i++)
         digitalWrite(LEDpins[i], state);
     state = !state;
-    delay(50);
+    delay(33); // 30Hz
 }
 
 // Send gravity vector on [BLE]serial ports.
@@ -61,6 +61,6 @@ void sendIMUdata() {
   if (BLESerial)
       BLESerial.println(euler.z());
 
-  Serial.print(     euler.z(), 3); // 3 decimals seem sufficient
+  Serial.print(euler.z()); // 2 decimals seem sufficient
   Serial.print('\n');
 }

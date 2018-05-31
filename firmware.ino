@@ -54,14 +54,32 @@ void loop() {
     delay(33); // 30Hz
 }
 
-// Send gravity vector on [BLE]serial ports.
+// Send acceleration and orientation vectors on [BLE]serial ports.
 void sendIMUdata() {
-    imu::Vector<3> euler = IMU.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    // accelerations
+    imu::Vector<3> imu_data = IMU.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    if (BLESerial) {
+        BLESerial.print("a\t");
+        BLESerial.print(imu_data.x()); BLESerial.print('\t');
+        BLESerial.print(imu_data.y()); BLESerial.print('\t');
+        BLESerial.print(imu_data.z()); BLESerial.print('\t');
+    }
+    Serial.print("a\t");
+    Serial.print(imu_data.x()); Serial.print('\t');
+    Serial.print(imu_data.y()); Serial.print('\t');
+    Serial.print(imu_data.z()); Serial.print('\t');
 
-    if (BLESerial)
-        BLESerial.println(euler.z());
-
-    Serial.print(euler.z()); // 2 decimals seem sufficient
-    Serial.print('\n');
+    // orientations
+    imu_data = IMU.getVector(Adafruit_BNO055::VECTOR_EULER);
+    if (BLESerial) {
+        BLESerial.print("o\t");
+        BLESerial.print(imu_data.x()); BLESerial.print('\t');
+        BLESerial.print(imu_data.y()); BLESerial.print('\t');
+        BLESerial.print(imu_data.z()); BLESerial.print('\n');
+    }
+    Serial.print("o\t");
+    Serial.print(imu_data.x()); Serial.print('\t');
+    Serial.print(imu_data.y()); Serial.print('\t');
+    Serial.print(imu_data.z()); Serial.print('\n');
 }
 

@@ -46,14 +46,14 @@ void photosensorSetup() {
                     // configuration read value did not match configuration write
                     // value, run configuration again
                     exit = 0;
-                    digitalWrite(LED_B, digitalRead(LED_B)); // toggle
+                    digitalWrite(LED_B, !digitalRead(LED_B)); // toggle
                     DEBUG_PRINTLN("ERROR: VERIFY_FAIL");
                     break;
                 case WATCH_FAIL:
                     // verify succeeded but entry into WATCH mode failed, run
                     // configuration again
                     exit = 0;
-                    digitalWrite(LED_G, digitalRead(LED_G)); // toggle
+                    digitalWrite(LED_G, !digitalRead(LED_G)); // toggle
                     DEBUG_PRINTLN("ERROR: WATCH_FAIL");
                     break;
                 default:  //value returned was unknown

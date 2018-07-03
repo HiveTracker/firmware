@@ -54,32 +54,39 @@ void loop() {
     delay(33); // 30Hz
 }
 
-// Send acceleration and orientation vectors on [BLE]serial ports.
+// Send orientation vectors on [BLE]serial ports.
 void sendIMUdata() {
-    // accelerations
-    imu::Vector<3> imu_data = IMU.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-    if (BLESerial) {
-        BLESerial.print("a\t");
-        BLESerial.print(imu_data.x()); BLESerial.print('\t');
-        BLESerial.print(imu_data.y()); BLESerial.print('\t');
-        BLESerial.print(imu_data.z()); BLESerial.print('\t');
-    }
-    Serial.print("a\t");
-    Serial.print(imu_data.x()); Serial.print('\t');
-    Serial.print(imu_data.y()); Serial.print('\t');
-    Serial.print(imu_data.z()); Serial.print('\t');
 
-    // orientations
-    imu_data = IMU.getVector(Adafruit_BNO055::VECTOR_EULER);
-    if (BLESerial) {
-        BLESerial.print("o\t");
-        BLESerial.print(imu_data.x()); BLESerial.print('\t');
-        BLESerial.print(imu_data.y()); BLESerial.print('\t');
-        BLESerial.print(imu_data.z()); BLESerial.print('\n');
+    const bool sendQuaternions = true;
+
+    if (sendQuaternions) {
+
+        imu::Quaternion quat = IMU.getQuat();
+
+        if (BLESerial) {
+            BLESerial.print(quat.w()); BLESerial.print('\t');
+            BLESerial.print(quat.x()); BLESerial.print('\t');
+            BLESerial.print(quat.y()); BLESerial.print('\t');
+            BLESerial.print(quat.z()); BLESerial.print('\n');
+        }
+        Serial.print(quat.w()); Serial.print('\t');
+        Serial.print(quat.x()); Serial.print('\t');
+        Serial.print(quat.y()); Serial.print('\t');
+        Serial.print(quat.z()); Serial.print('\n');
+
+    } else {
+
+        imu::Vector<3> euler = IMU.getVector(Adafruit_BNO055::VECTOR_EULER);
+
+        if (BLESerial) {
+            BLESerial.print(euler.x()); BLESerial.print('\t');
+            BLESerial.print(euler.y()); BLESerial.print('\t');
+            BLESerial.print(euler.z()); BLESerial.print('\n');
+        }
+        Serial.print(euler.x()); Serial.print('\t');
+        Serial.print(euler.y()); Serial.print('\t');
+        Serial.print(euler.z()); Serial.print('\n');
+
     }
-    Serial.print("o\t");
-    Serial.print(imu_data.x()); Serial.print('\t');
-    Serial.print(imu_data.y()); Serial.print('\t');
-    Serial.print(imu_data.z()); Serial.print('\n');
 }
 

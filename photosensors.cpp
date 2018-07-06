@@ -18,10 +18,10 @@ void photosensorSetup() {
     pinMode(LED_B, OUTPUT);
 
     for (int i = 0; i < sensors_num; i++) {
-        DEBUG_PRINTLN(i);
         bool exit = 0;
 
         while (!exit) {
+            DEBUG_PRINTLN(i);
             if (!devices[i].waitForLight(light_timeout)) {
                 DEBUG_PRINTLN("TIMEOUT");
                 continue;

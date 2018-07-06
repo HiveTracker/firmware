@@ -46,7 +46,10 @@ const int sweepEndTime   = 6777 + margin; // microsec
 const int sweepStartTicks = sweepStartTime * ticksPerMicrosec;
 const int sweepEndTicks   = sweepEndTime   * ticksPerMicrosec;
 
-void pulseSetup();
+typedef void (*funcPtr_t)();
+void pulseSetup(funcPtr_t callback);
+
+void sendPulseData();
 
 
 extern pulse_data_t pulse_data;

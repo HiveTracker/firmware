@@ -1,10 +1,10 @@
 #include <math.h>
 #include "pulse.h"
 #include "PPI.h"
-#include "pinout.h" // important to keep it last for the undefs to work
 #include "Timer.h"
 #include "photosensors.h"
 #include "firmware.h"
+#include "pinout.h" // important to keep it last for the undefs to work
 
 typedef struct {
     bool valid;
@@ -22,10 +22,15 @@ void measureSyncPulse();
 void readSyncPulse(sync_pulse_t &pulse);
 void armSweepPulse();
 void measureSweepPulse();
-void sendPulseData();
+void sendPulseData();                                           // TODO remove?
 
+static void defaultFunc() {};
+static funcPtr_t dataTXcallback;
 
-void pulseSetup() {
+void pulseSetup(funcPtr_t callback) {
+
+    dataTXcallback = (callback) ? callback : defaultFunc;
+
     photosensorSetup();
 
     // start timers, they will be sync'ed (reset) in PPI
@@ -145,7 +150,7 @@ void measureSweepPulse() {
         }
     }
 
-    sendPulseData(); // TODO: take it out of this file!
+    dataTXcallback();
 
     pulse_data.isReady = true;
     armSyncPulse(); // prepare for next loop

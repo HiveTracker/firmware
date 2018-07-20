@@ -202,11 +202,10 @@ void sendPulseData() {
             pulseStart >>= 2;
             pulseEnd >>= 2;
 
-            Serial.write((pulseStart >> 0) & 0xFF);    // LSB first
-            Serial.write((pulseStart >> 8) & 0xFF);    // MSB last
+            int centroid = (pulseStart + pulseEnd) / 2;
 
-            Serial.write((pulseEnd >> 0) & 0xFF);    // LSB first
-            Serial.write((pulseEnd >> 8) & 0xFF);    // MSB last
+            Serial.write((centroid >> 0) & 0xFF);    // LSB first
+            Serial.write((centroid >> 8) & 0xFF);    // MSB last
         }
     }
 #endif

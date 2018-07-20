@@ -48,10 +48,14 @@ def serial_init():
 
 ###############################################################################
 def lookForHeader(port):
-    #if DEBUG_PRINT: print "seeking header\n"
+    if DEBUG_PRINT: print "seeking header\n"
+
     headers_observed = 0 # we should not need more than 4
     bytes_cnt = 0 # to check for several headers before validation
     base_axis = 0 # to leave at the end of a full cycle
+
+    # 2 headers + 1 base_axis + 4 photodiodes * 2 bytes
+    packet_size = 2 + 1 + 4 * 2
 
     while (headers_observed < 4 and base_axis != 3):
         b = readByte(port)
@@ -61,7 +65,7 @@ def lookForHeader(port):
             b = readByte(port)
             bytes_cnt += 1
 
-            if (b == 255 and bytes_cnt > 18):
+            if (b == 255 and bytes_cnt >= packet_size):
                 headers_observed += 1
                 if DEBUG_PRINT:
                     print "\nHEADER:", headers_observed, "cnt:", bytes_cnt
@@ -92,7 +96,7 @@ def parse_data(port):
     centroids = [0 for i in range(centroidNum)]
 
     for i in range(centroidNum):
-        centroids[i] = getCentroid(port)
+        centroids[i] = decodeTime(port)
         if DEBUG_PRINT: print "centroids[", i, "] =", centroids[i]
 
     # consumes header
@@ -104,17 +108,6 @@ def parse_data(port):
             break
 
     return base, axis, centroids
-
-
-###############################################################################
-def getCentroid(port):
-    startTime = decodeTime(port)
-    endTime   = decodeTime(port)
-
-    if (startTime == 0 or endTime == 0):
-        return 0
-
-    return ((endTime + startTime) / 2)
 
 
 ###############################################################################

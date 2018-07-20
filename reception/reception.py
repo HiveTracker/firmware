@@ -15,10 +15,11 @@ def main():
         # base = 0 or 1 (B or C)
         # axis = 0 or 1 (horizontal or vertical)
         # centroids = array of 4 floats in microseconds
-        base, axis, centroids = parse_data(port)
+        # accelerations = array of 3 floats in G (AKA m/s^2)
+        base, axis, centroids, accelerations = parse_data(port)
 
         if not DEBUG_PRINT:
-            print base, axis, centroids
+            print( base, axis, centroids, accelerations )
 
 
 ###############################################################################
@@ -29,26 +30,26 @@ def serial_init():
     elif "Darwin" in PLATFORM:
         SERIAL_PATH = "/dev/tty.usb*"   # TODO: test it
     else: # Windows
-        SERIAL_PATH = "COM*"            # TODO: test it
+        port = serial.Serial('COM5', 115200 * 2)
+        SERIAL_PATH = 'WIN_WORKARAOUND'
 
-    devices = glob.glob(SERIAL_PATH)
-
-    if DEBUG_PRINT: print devices
-    port = serial.Serial(devices[0], 115200 * 2)
+    if SERIAL_PATH != 'WIN_WORKARAOUND':
+        devices = glob.glob(SERIAL_PATH)
+        port = serial.Serial(devices[0], 115200 * 2)
     success = port.isOpen()
 
     if success:
-        if DEBUG_PRINT: print "Port open."
+        if DEBUG_PRINT: print("Port open.")
         lookForHeader(port)
     else:
-        print "\n!!! Error: serial device not found !!!"
+        print("\n!!! Error: serial device not found !!!")
         exit(-1)
     return port
+
+
 ###############################################################################
-
-
 def lookForHeader(port):
-    if DEBUG_PRINT: print "seeking header\n"
+    if DEBUG_PRINT: print("seeking header\n")
 
     # packets structure:
     # 2 headers + 1 base_axis + (4 photodiodes * 2 bytes) + (3 accel * 2 bytes)
@@ -67,35 +68,41 @@ def lookForHeader(port):
 ###############################################################################
 def readByte(port):
     byte = ord(port.read(1))
-    if DEBUG_PRINT: print byte
+    if DEBUG_PRINT: print(byte)
     return byte
 
 
 ###############################################################################
 def parse_data(port):
     centroidNum = 4
+    accelerationNum = 3
 
     base_axis = readByte(port)
     base = (base_axis >> 1) & 1
     axis = (base_axis >> 0) & 1
 
-    if DEBUG_PRINT: print "\nbase, axis:", base, axis
+    if DEBUG_PRINT: print("\nbase, axis:", base, axis)
 
     centroids = [0 for i in range(centroidNum)]
 
     for i in range(centroidNum):
         centroids[i] = decodeTime(port)
-        if DEBUG_PRINT: print "centroids[", i, "] =", centroids[i]
+        if DEBUG_PRINT: print("centroids[", i, "] =", centroids[i])
+
+    accelerations = [0 for i in range(accelerationNum)]
+    for i in range(accelerationNum):
+        accelerations[i] = decodeAccel(port)
+        if DEBUG_PRINT: print("accelerations[", i, "] =", accelerations[i])
 
     # consumes header
     for i in range(2):
         b = readByte(port)
         if (b != 255):
-            if DEBUG_PRINT: print "header problem", i
+            if DEBUG_PRINT: print("header problem", i)
             lookForHeader(port)
             break
 
-    return base, axis, centroids
+    return base, axis, centroids, accelerations
 
 
 ###############################################################################
@@ -108,10 +115,23 @@ def decodeTime(port):
 
     if (time >= 6777 or time < 1222):
         time = 0
-        if DEBUG_PRINT: print "INVALID TIME"
+        if DEBUG_PRINT: print("INVALID TIME")
 
     return time
 
+
+###############################################################################
+# github.com/adafruit/Adafruit_BNO055/blob/master/Adafruit_BNO055.cpp#L359-L361
+def decodeAccel(port):
+    rxl = readByte(port)        # LSB first
+    rxh = readByte(port)        # MSB last
+    accel = (rxh << 8) + rxl    # reconstruct packets
+
+    gravity = 9.81
+    accel /= (1<<15) / (4.0 * gravity)  # normalize with max amplitude
+    accel -= gravity * 2.0              # remove max negative value (-2g)...
+                                        # ...to stay positive during tx
+    return accel
 
 
 ###############################################################################

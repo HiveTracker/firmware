@@ -44,37 +44,25 @@ def serial_init():
         print "\n!!! Error: serial device not found !!!"
         exit(-1)
     return port
-
-
 ###############################################################################
+
+
 def lookForHeader(port):
     if DEBUG_PRINT: print "seeking header\n"
 
-    headers_observed = 0 # we should not need more than 4
-    bytes_cnt = 0 # to check for several headers before validation
-    base_axis = 0 # to leave at the end of a full cycle
+    # packets structure:
+    # 2 headers + 1 base_axis + (4 photodiodes * 2 bytes) + (3 accel * 2 bytes)
 
-    # 2 headers + 1 base_axis + 4 photodiodes * 2 bytes
-    packet_size = 2 + 1 + 4 * 2
+    while True:
 
-    while (headers_observed < 4 and base_axis != 3):
-        b = readByte(port)
-        bytes_cnt += 1
+        while readByte(port) != 255:
+            pass # consume
 
-        if (b == 255):
-            b = readByte(port)
-            bytes_cnt += 1
+        if readByte(port) != 255:
+            continue
 
-            if (b == 255 and bytes_cnt >= packet_size):
-                headers_observed += 1
-                if DEBUG_PRINT:
-                    print "\nHEADER:", headers_observed, "cnt:", bytes_cnt
-                bytes_cnt = 0
+        break
 
-                if base_axis < 2: # stop at 3 without "consuming" it
-                    base_axis = readByte(port)
-                    bytes_cnt += 1
-                    if DEBUG_PRINT: print "base_axis:", base_axis
 
 ###############################################################################
 def readByte(port):

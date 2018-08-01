@@ -21,7 +21,7 @@ void IMUsetup() {
 
 void fetchIMUdata() {
     // anticipate data sync for next TX:
-    accel = IMU.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    accel = IMU.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
 }
 
 

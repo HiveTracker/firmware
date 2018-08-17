@@ -9,7 +9,7 @@ ARG = -if swd -speed 1000 -device NRF52832_xxAA
 TERM = gnome-terminal -e
 BOARD = sandeepmistry:nRF5:Generic_nRF52832:softdevice=s132
 
-.PHONY: all debug startgdbserver startgdbserver_here clean
+.PHONY: all upload compile pref_list debug startgdbserver local_startgdbserver stopgdbserver clean
 
 
 all: upload
@@ -17,17 +17,18 @@ all: upload
 # Documentation:
 # https://github.com/arduino/Arduino/blob/master/build/shared/manpage.adoc
 
-upload: stopgdbserver
-	arduino --preserve-temp-files --upload --verbose-upload --useprogrammer --verbose *.ino
+upload: *.ino *.cpp *.h stopgdbserver clean
+	arduino --preserve-temp-files --board $(BOARD) --upload --verbose-upload --useprogrammer --verbose *.ino
 
 # optional
-compilation: *.ino *.cpp *.h
+compile: *.ino *.cpp *.h clean
 	arduino --verify --preserve-temp-files --board $(BOARD) -v *ino
 
 # optional
 pref_list:
 	arduino --get-pref
 
+# TODO: use precise ELF name
 debug: $(ELF) startgdbserver
 	arm-none-eabi-gdb $(ELF)
 
@@ -39,7 +40,7 @@ local_startgdbserver:
 	@pidof $(GDB_SRV) > /dev/null || $(GDB_SRV) $(ARG)
 
 stopgdbserver:
-		@pidof JLinkGDBServer > /dev/null && killall $(GDB_SRV) || true
+	@pidof JLinkGDBServer > /dev/null && killall $(GDB_SRV) || true
 
 clean:
 	rm -rf $(BIN)/*

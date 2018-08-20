@@ -14,6 +14,10 @@ BOARD = sandeepmistry:nRF5:Generic_nRF52832:softdevice=s132
 
 all: upload
 
+
+# TODO: make install! upload could depend on it too...
+
+
 # Documentation:
 # https://github.com/arduino/Arduino/blob/master/build/shared/manpage.adoc
 
@@ -40,6 +44,7 @@ local_startgdbserver:
 	@pidof $(GDB_SRV) > /dev/null || $(GDB_SRV) $(ARG)
 
 stopgdbserver:
+	@pidof arm-none-eabi-gdb > /dev/null && killall arm-none-eabi-gdb || true
 	@pidof JLinkGDBServer > /dev/null && killall $(GDB_SRV) || true
 
 clean:

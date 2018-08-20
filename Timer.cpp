@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <nrf_sdm.h>
+#include <nrf_soc.h>
 #include "nRF_SDK/nrf_timer.h"
 #include "Timer.h"
 
@@ -20,6 +22,14 @@ TimerClass::TimerClass(int timer, int channel) {
 }
 
 
+void TimerClass::NVIC_set(IRQn_Type IRQn) {
+    // enable IRQ and avoid clashes with soft device
+    NVIC_SetPriority(IRQn, 3);
+    NVIC_ClearPendingIRQ(IRQn);
+    NVIC_EnableIRQ(IRQn);
+}
+
+
 void TimerClass::attachInterrupt(funcPtr_t callback, int microsec) {
     // This function will be called when time out interrupt will occur
     if (callback) {
@@ -37,10 +47,10 @@ void TimerClass::attachInterrupt(funcPtr_t callback, int microsec) {
     nrf_timer_int_mask_t chanel_mask = nrf_timer_compare_int_get(cc_channel);
     nrf_timer_int_enable(nrf_timer, chanel_mask);
 
-    if (nrf_timer == nrf_timers[1]) NVIC_EnableIRQ(TIMER1_IRQn);
-    if (nrf_timer == nrf_timers[2]) NVIC_EnableIRQ(TIMER2_IRQn);
-    if (nrf_timer == nrf_timers[3]) NVIC_EnableIRQ(TIMER3_IRQn);
-    if (nrf_timer == nrf_timers[4]) NVIC_EnableIRQ(TIMER4_IRQn);
+    if (nrf_timer == nrf_timers[1]) NVIC_set(TIMER1_IRQn);
+    if (nrf_timer == nrf_timers[2]) NVIC_set(TIMER2_IRQn);
+    if (nrf_timer == nrf_timers[3]) NVIC_set(TIMER3_IRQn);
+    if (nrf_timer == nrf_timers[4]) NVIC_set(TIMER4_IRQn);
 
     // Program compare register between 0 & 2**28 (max on 32 bits @16 ticks/us)
     if (microsec < 0)           microsec = 0;

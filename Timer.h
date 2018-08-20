@@ -11,6 +11,8 @@ class TimerClass {
     private:
         NRF_TIMER_Type*        nrf_timer;
         nrf_timer_cc_channel_t cc_channel;
+
+        void NVIC_set(IRQn_Type IRQn);
 };
 
 extern NRF_TIMER_Type* nrf_timers[5];

@@ -1,6 +1,6 @@
-BIN = /tmp/arduino_build*
+BIN_DIR = /tmp/arduino_build*
 
-ELF = $(BIN)/*elf
+ELF = $(BIN_DIR)/*elf
 
 GDB_SRV = /usr/bin/JLinkGDBServer
 
@@ -21,6 +21,7 @@ all: upload
 # Documentation:
 # https://github.com/arduino/Arduino/blob/master/build/shared/manpage.adoc
 
+# TODO: avoid recompiling if no useful (without clean? ...but arduino makes a new build everytime!?)
 upload: *.ino *.cpp *.h stopgdbserver clean
 	arduino --preserve-temp-files --board $(BOARD) --upload --verbose-upload --useprogrammer --verbose *.ino
 
@@ -48,5 +49,5 @@ stopgdbserver:
 	@pidof JLinkGDBServer > /dev/null && killall $(GDB_SRV) || true
 
 clean:
-	rm -rf $(BIN)/*
+	rm -rf $(BIN_DIR) /tmp/arduino_cache*
 

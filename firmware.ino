@@ -1,26 +1,34 @@
+#include "pinout.h"
+#include "communication.h"
 #include "pulse.h"
-// #include "communication.h" // TODO
-#include "pinout.h" // important to keep it last for the undefs to work
 
-extern void sendPulseData();
+#include <SPI.h> // BLEPeripheral depends on SPI
+#include <BLEPeripheral.h>
+#include "BLESerial.h"
+//extern BLESerial BLESerial; // TODO?
+
 
 void sendData() {
     sendPulseData();
     // sendOrientations();  // TODO
-    // sendTXend();         // TODO
+    // sendAccelerations(); // TODO
 }
 
 void setup() {
-    Serial.setPins(0, PIN_SERIAL_TX); // RX is not used here
-    Serial.begin(230400);
-
-    // communicationSetup(); // TODO
-    // IMUsetup(); // TODO
+    pinsSetup();
+    serialSetup();
 
     // Start pulse measurements and set data TX callback function (using timers)
-    pulseSetup(sendData);
+    pulseSetup(NULL); // NULL => use pulseDataIsReady() to know when ready
+
+    // IMUsetup(); // TODO
+
+    wirelessSetup(); // IMPORTANT: KEEP IT LAST!
 }
 
-void loop() { }
-
+void loop() {
+    if (pulseDataIsReady()) { // should be called as often as possible
+        sendData();
+    }
+}
 

@@ -22,7 +22,8 @@ void measureSyncPulse();
 void readSyncPulse(sync_pulse_t &pulse);
 void armSweepPulse();
 void measureSweepPulse();
-void sendPulseData();                                           // TODO remove?
+
+
 
 static void defaultFunc() {};
 static funcPtr_t dataTXcallback;
@@ -150,66 +151,21 @@ void measureSweepPulse() {
         }
     }
 
-    dataTXcallback();
-
+    // If CPU is sleeping most of the time, then it's probably OK to call it from an interrupt:
+    // dataTXcallback();
+    // otherwise, let's poll the follwing flag in the main loop:
     pulse_data.isReady = true;
     armSyncPulse(); // prepare for next loop
 }
 
 
-void sendPulseData() {
-#if 0
-    // Send readable data:
-
-    Serial.print(pulse_data.baseID);
-    Serial.print(pulse_data.axis);
-
-    for (int t = 0; t < 2; t++) {
-        for (int c = 0; c < 4; c += 2) {
-            int sum = pulse_data.captures[t][c] + pulse_data.captures[t][c+1];
-            Serial.print('\t');
-            Serial.print(sum /= 2); // send centroid
-        }
+bool pulseDataIsReady() {
+    if (pulse_data.isReady) {
+        pulse_data.isReady = false;
+        return true;
+    } else {
+        return false;
     }
-    Serial.print('\n');
-#else
-    // Send binary data:
-
-    Serial.write(0xFF); Serial.write(0xFF);         // send start headers
-
-    uint8_t base_axis = pulse_data.baseID << 1  |  pulse_data.axis;
-    Serial.write(base_axis);                        // send base ID and axis
-
-    for (int t = 0; t < 2; t++) {                   // send captures
-        for (int c = 0; c < sensors_num; c += 2) {
-
-            // Invalid pulse by default
-            int pulseStart = pulse_data.captures[t][c];
-            int pulseEnd = pulse_data.captures[t][c+1];
-            int pulseWidthTicks16 = pulseEnd - pulseStart;
-
-            if ( pulseWidthTicks16 < minSweepPulseWidth ||     // ticks
-                 pulseWidthTicks16 > maxSweepPulseWidth ||     // ticks
-                 pulseStart < sweepStartTicks           ||     // ticks
-                 pulseEnd   > sweepEndTicks ) {                // ticks
-
-                // mark the measures if they are invalid
-                pulseStart *= -1;
-                pulseEnd *= -1;
-            }
-
-            // remove 2 LSb (non-significant) to send data on 16 bits
-            pulseStart >>= 2;
-            pulseEnd >>= 2;
-
-            Serial.write((pulseStart >> 0) & 0xFF);    // LSB first
-            Serial.write((pulseStart >> 8) & 0xFF);    // MSB last
-
-            Serial.write((pulseEnd >> 0) & 0xFF);    // LSB first
-            Serial.write((pulseEnd >> 8) & 0xFF);    // MSB last
-        }
-    }
-#endif
 }
 
 

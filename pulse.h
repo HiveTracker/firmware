@@ -49,7 +49,7 @@ const int sweepEndTicks   = sweepEndTime   * ticksPerMicrosec;
 typedef void (*funcPtr_t)();
 void pulseSetup(funcPtr_t callback);
 
-void sendPulseData();
+bool pulseDataIsReady();
 
 
 extern pulse_data_t pulse_data;

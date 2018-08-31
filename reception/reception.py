@@ -48,29 +48,21 @@ def serial_init():
 
 ###############################################################################
 def lookForHeader(port):
-    #if DEBUG_PRINT: print "seeking header\n"
-    headers_observed = 0 # we should not need more than 4
-    bytes_cnt = 0 # to check for several headers before validation
-    base_axis = 0 # to leave at the end of a full cycle
+    if DEBUG_PRINT: print("seeking header\n")
 
-    while (headers_observed < 4 and base_axis != 3):
-        b = readByte(port)
-        bytes_cnt += 1
+    # packets structure:
+    # 2 headers + 1 base_axis + (4 photodiodes * 2 bytes) + (3 accel * 2 bytes)
 
-        if (b == 255):
-            b = readByte(port)
-            bytes_cnt += 1
+    while True:
 
-            if (b == 255 and bytes_cnt > 18):
-                headers_observed += 1
-                if DEBUG_PRINT:
-                    print "\nHEADER:", headers_observed, "cnt:", bytes_cnt
-                bytes_cnt = 0
+        while readByte(port) != 255:
+            pass # consume
 
-                if base_axis < 2: # stop at 3 without "consuming" it
-                    base_axis = readByte(port)
-                    bytes_cnt += 1
-                    if DEBUG_PRINT: print "base_axis:", base_axis
+        if readByte(port) != 255:
+            continue
+
+        break
+
 
 ###############################################################################
 def readByte(port):

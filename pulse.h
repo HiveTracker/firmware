@@ -2,6 +2,7 @@
 #define PULSE_H
 
 #include <math.h>
+#include "firmware.h"
 
 
 typedef struct {
@@ -11,8 +12,6 @@ typedef struct {
     bool isReady;
 } pulse_data_t;
 
-const int syncTimer = 3;
-const int forkTimer = 4;
 
 const int timerNumbers[] = {syncTimer, forkTimer};
 

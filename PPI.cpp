@@ -24,6 +24,7 @@
 
 #include "PPI.h"
 #include "nRF_SDK/nrf_timer.h"
+#include "firmware.h"
 
 const nrf_ppi_channel_t channels[20] = {NRF_PPI_CHANNEL0, NRF_PPI_CHANNEL1,
     NRF_PPI_CHANNEL2, NRF_PPI_CHANNEL3, NRF_PPI_CHANNEL4, NRF_PPI_CHANNEL5,
@@ -54,9 +55,9 @@ const nrf_timer_task_t capture_tasks[] = { NRF_TIMER_TASK_CAPTURE0,
 //public functions
 
 PPIClass::PPIClass() {
-    timerNo = 1; // 0 is used by soft device
-    configureTimer(3);
-    configureTimer(4); // TODO CHEEEECK !
+    timerNo = syncTimer; // default value - updated everytime
+    configureTimer(syncTimer);
+    configureTimer(forkTimer);
 }
 
 

@@ -1,11 +1,13 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+#include "firmware.h"
+
 typedef void (*funcPtr_t)();
 
 class TimerClass {
     public:
-        TimerClass(int timer = 1, int channel = 0);
+        TimerClass(int timer = interupTimer, int channel = 0);
         void attachInterrupt(funcPtr_t callback, int microsec);
         inline void detachInterrupt();
     private:

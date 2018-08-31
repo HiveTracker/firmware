@@ -14,4 +14,8 @@
 #define DEBUG_WRITE(...)
 #endif
 
+const int interupTimer = 1;
+const int syncTimer = 3;
+const int forkTimer = 4;
+
 #endif // _FIRMWARE_H_

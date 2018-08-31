@@ -5,7 +5,7 @@ import serial
 import sys
 import platform
 
-DEBUG_PRINT = 0
+DEBUG_PRINT = 1
 
 
 ###############################################################################
@@ -17,8 +17,9 @@ def main():
         # centroids = array of 4 floats in microseconds
         base, axis, centroids = parse_data(port)
 
-        if not DEBUG_PRINT:
-            print( base, axis, centroids )
+        print( base, axis, centroids )
+        if DEBUG_PRINT:
+            print( "---------------------\n" )
 
 
 ###############################################################################

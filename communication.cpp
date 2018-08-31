@@ -67,16 +67,11 @@ void sendPulseData() {
                 pulseEnd *= -1;
             }
 
-            // remove 2 LSb (non-significant) to send data on 16 bits
-            pulseStart >>= 2;
-            pulseEnd >>= 2;
-            int centroid = pulseEnd - pulseStart;     // TODO: use in debug too
+            // get centroid + remove 2 LSb (non-significant) to stay in 16bit
+            int centroid = ((pulseEnd+pulseStart)/2) >> 2;
 
-            DEBUG_WRITE((pulseStart >> 0) & 0xFF);    // LSB first
-            DEBUG_WRITE((pulseStart >> 8) & 0xFF);    // MSB last
-
-            DEBUG_WRITE((pulseEnd >> 0) & 0xFF);    // LSB first
-            DEBUG_WRITE((pulseEnd >> 8) & 0xFF);    // MSB last
+            DEBUG_WRITE((centroid >> 0) & 0xFF);    // LSB first
+            DEBUG_WRITE((centroid >> 8) & 0xFF);    // MSB last
 
             if (BLESerial) {
                 BLESerial.print(' ');

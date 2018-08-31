@@ -100,26 +100,15 @@ def parse_data(port):
 
 ###############################################################################
 def getCentroid(port):
-    startTime = decodeTime(port)
-    endTime   = decodeTime(port)
-
-    if (startTime == 0 or endTime == 0):
-        return 0
-
-    return ((endTime + startTime) / 2)
-
-
-###############################################################################
-def decodeTime(port):
     rxl = readByte(port)        # LSB first
     rxh = readByte(port)        # MSB last
     time = (rxh << 8) + rxl     # reconstruct packets
-    time <<= 2                  # (non-significant) lossy decompression
+    time <<= 2                  # (non-significantly lossy) decompression
     time /= 16.                 # convert to us
 
     if (time >= 6777 or time < 1222):
+        if DEBUG_PRINT: print "INVALID TIME:" + str(time)
         time = 0
-        if DEBUG_PRINT: print "INVALID TIME"
 
     return time
 

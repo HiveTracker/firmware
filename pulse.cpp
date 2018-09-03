@@ -93,12 +93,12 @@ void measureSyncPulse() {
 
 void readSyncPulse(sync_pulse_t &pulse) {
     for (int i = 0; i < sensors_num; i++) {
-        pulse_data.captures[0][i] =
+        pulse_data.pulse_captures[0][i] =
                 nrf_timer_cc_read(nrf_timers[syncTimer],
                                   nrf_timer_cc_channel_t(i));
 
-        // Look for at least 1 valid pulse                        TODO: make it smarter?
-        int pulseWidthTicks16 = pulse_data.captures[0][i]; // 16 MHz
+        // Look for at least 1 valid pulse                        TODO: make it smarter!!!
+        int pulseWidthTicks16 = pulse_data.pulse_captures[0][i]; // 16 MHz
 
         if ( pulseWidthTicks16 > minSyncPulseWidth &&    // ticks
              pulseWidthTicks16 < maxSyncPulseWidth ) {   // ticks
@@ -108,7 +108,7 @@ void readSyncPulse(sync_pulse_t &pulse) {
             // for the following calculation, consult "Sync pulse timings" in .h file
             pulse_data.axis = (int(round(pulseWidthTicks48 / 500.)) % 2);
 
-            pulse.skip = (pulse_data.captures[0][i] > skipThreshold); // 100us to ticks
+            pulse.skip = (pulse_data.pulse_captures[0][i] > skipThreshold); // 100us to ticks
 
             pulse.valid = true;
             break;
@@ -146,7 +146,7 @@ void measureSweepPulse() {
     // Timers S and F, on 4 channels (0 to 3)
     for (int t = 0; t < 2; t++) {
         for (int c = 0; c < sensors_num; c++) {
-            pulse_data.captures[t][c] = nrf_timer_cc_read(nrf_timers[timerNumbers[t]],
+            pulse_data.sweep_captures[t][c] = nrf_timer_cc_read(nrf_timers[timerNumbers[t]],
                                                           nrf_timer_cc_channel_t(c));
         }
     }

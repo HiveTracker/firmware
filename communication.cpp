@@ -53,8 +53,8 @@ void sendPulseData() {
         for (int c = 0; c < sensors_num; c += 2) {
 
             // Invalid pulse by default
-            int pulseStart = pulse_data.captures[t][c];
-            int pulseEnd = pulse_data.captures[t][c+1];
+            int pulseStart = pulse_data.sweep_captures[t][c];
+            int pulseEnd = pulse_data.sweep_captures[t][c+1];
             int pulseWidthTicks16 = pulseEnd - pulseStart;
 
             if ( pulseWidthTicks16 < minSweepPulseWidth ||     // ticks

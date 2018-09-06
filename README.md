@@ -29,8 +29,11 @@ https://github.com/sandeepmistry/arduino-nRF5#installing
 In the "Tools" menu select:
 - "Board->Generic nRF52"
 - "Softdevice->S132" (select "None" if you don't use BLE)
-- "Pinout->Custom"
+- The rest depends on your personal configuration.
 
+If you prefer command line, you can also do:
+
+    make compile
 
 ## Program
 
@@ -69,6 +72,15 @@ https://raw.githubusercontent.com/arduino/OpenOCD/master/contrib/60-openocd.rule
 Finally, in the "Tools" menu select the right SWD probe:
 - "Programmer->J-Link"
 - "Programmer->ST-Link"
+
+
+### Upload
+
+In the Arduino IDE it's the same as usual...
+
+...and if you prefer command line, you can also do:
+
+    make # upload is by default
 
 ## Licence
 [GNU General Public License version 3](https://opensource.org/licenses/GPL-3.0)

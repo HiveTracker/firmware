@@ -33,7 +33,7 @@ void serialSetup() {
 
 void wirelessSetup() {
     Serial.println("Connect to BLE-UART...");
-    BLESerial.setLocalName("BLE-UART");
+    BLESerial.setLocalName("HT-UART");
     BLESerial.begin();
     // while (!BLESerial); // wait
     Serial.println("BLE OK!");

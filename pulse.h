@@ -5,7 +5,7 @@
 
 
 typedef struct {
-    int pulse_captures[2][4] = {{0}}; // 2 timers, 4 channels
+    int pulse_captures[4]    = {{0}};
     int sweep_captures[2][4] = {{0}}; // 2 timers, 4 channels
     bool baseID;
     bool axis; // 0 horizontal (x), 1 vertical (y) - TODO: check it!

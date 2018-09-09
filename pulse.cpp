@@ -22,6 +22,7 @@ void measureSyncPulse();
 void readSyncPulse(sync_pulse_t &pulse);
 void armSweepPulse();
 void measureSweepPulse();
+bool allAreHigh();
 
 
 
@@ -66,11 +67,25 @@ void armSyncPulse() {
         PPI.setShortcut(PIN_HIGH, TIMER_CAPTURE);
     }
 
-    // wait for posedge
-    while (digitalRead(sensors_e[0]) == 1);
-    while (digitalRead(sensors_e[0]) == 0);
+    // Active wait till the end of sync pulses of multiple photodiodes
+    while (allAreHigh());  // wait till we get low
+    while (!allAreHigh()); // wait till we get high
+
     measureSyncPulse();
 }
+
+
+bool allAreHigh() {
+    // TODO: timer or GPIO interrupt should work with the right priority:
+    // https://github.com/HiveTracker/firmware/blob/2afe9f1/Timer.cpp#L25-L30
+    // https://github.com/HiveTracker/PPI/commit/d3a54ad
+
+    // photodiodes are high by default (low when light is detected)
+    bool allHigh = digitalRead(sensors_e[0]) & digitalRead(sensors_e[1]) &
+                   digitalRead(sensors_e[2]) & digitalRead(sensors_e[3]);
+    return allHigh;
+}
+
 
 
 void measureSyncPulse() {

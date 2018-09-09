@@ -2,11 +2,6 @@
 #include "communication.h"
 #include "pulse.h"
 
-#include <SPI.h> // BLEPeripheral depends on SPI
-#include <BLEPeripheral.h>
-#include "BLESerial.h"
-//extern BLESerial BLESerial; // TODO?
-
 
 void sendData() {
     sendPulseData();

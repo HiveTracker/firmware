@@ -1,6 +1,4 @@
 #include <Arduino.h>
-#include <nrf_sdm.h>
-#include <nrf_soc.h>
 #include "nRF_SDK/nrf_timer.h"
 #include "Timer.h"
 

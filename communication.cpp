@@ -61,8 +61,8 @@ void sendPulseData() {
                  pulseEnd   > sweepEndTicks ) {                // ticks
 
                 // mark the measures if they are invalid
-                pulseStart *= -1;
-                pulseEnd *= -1;
+                pulseStart = 0;
+                pulseEnd = 0;
             }
 
             // get centroid + remove 2 LSb (non-significant) to stay in 16bit

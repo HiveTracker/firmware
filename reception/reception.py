@@ -107,7 +107,7 @@ def getCentroid(port):
     time /= 16.                 # convert to us
 
     if (time >= 6777 or time < 1222):
-        if DEBUG_PRINT: print("INVALID TIME:", str(time))
+        print(" >>> INVALID TIME:", str(time))
         time = 0
 
     return time

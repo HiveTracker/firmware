@@ -14,8 +14,9 @@ TS4231 devices[] = { TS4231(sensors_e[0], sensors_d[0]),
 void photosensorSetup() {
     uint8_t config_result = -1;
 
-    pinMode(LED_G, OUTPUT);
-    pinMode(LED_B, OUTPUT);
+    // Turn on LED warnings (inverted logic)
+    digitalWrite(LED_G, 1);
+    digitalWrite(LED_B, 1);
 
     for (int i = 0; i < sensors_num; i++) {
         bool exit = 0;
@@ -66,14 +67,14 @@ void photosensorSetup() {
 
     if (config_result != CONFIG_PASS) {
         while(1) {
-            digitalWrite(LED_B, digitalRead(LED_B)); // toggle
-            digitalWrite(LED_G, digitalRead(LED_G)); // toggle
+            digitalWrite(LED_B, !digitalRead(LED_B)); // toggle
+            digitalWrite(LED_G, !digitalRead(LED_G)); // toggle
             DEBUG_PRINTLN("BUS_FAIL (or unknown error)");
             delay(500);
         }
     }
 
-    // Turn of LED warnings (inverted logic)
+    // Turn off LED warnings (inverted logic)
     digitalWrite(LED_G, 1);
     digitalWrite(LED_B, 1);
     DEBUG_PRINTLN("EVERYTHING OK");

@@ -36,7 +36,6 @@ void setup() {
         digitalWrite(LEDpins[2], 0);
         delay(100);
     }
-    IMU.setExtCrystalUse(true);
 
     BLESerial.setLocalName("UART");
     BLESerial.begin();

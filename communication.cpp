@@ -45,7 +45,7 @@ void sendPulseData() {
     uint8_t base_axis = pulse_data.baseID << 1  |  pulse_data.axis;
     DEBUG_WRITE(base_axis);                        // send base ID and axis
     if (BLESerial)
-        BLESerial.print(base_axis);
+        BLESerial.write(base_axis);
 
     for (int t = 0; t < 2; t++) {                   // send captures
         for (int c = 0; c < sensors_num; c += 2) {
@@ -67,19 +67,19 @@ void sendPulseData() {
 //          }
 
             // get centroid + remove 2 LSb (non-significant) to stay in 16bit
+            // TODO: use differential loss-less compression
             int centroid = ((pulseEnd+pulseStart)/2) >> 2;
 
             DEBUG_WRITE((centroid >> 0) & 0xFF);    // LSB first
             DEBUG_WRITE((centroid >> 8) & 0xFF);    // MSB last
 
             if (BLESerial) {
-                BLESerial.print(' ');
-                BLESerial.print((centroid >> 0) & 0xFF);    // LSB first
-                BLESerial.print((centroid >> 8) & 0xFF);    // MSB last
+                BLESerial.write((centroid >> 0) & 0xFF);    // LSB first
+                BLESerial.write((centroid >> 8) & 0xFF);    // MSB last
             }
         }
     }
     if (BLESerial)
-        BLESerial.print('\n');
+        BLESerial.write('\n');
 }
 

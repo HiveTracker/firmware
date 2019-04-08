@@ -55,15 +55,16 @@ void sendPulseData() {
             int pulseEnd = pulse_data.sweep_captures[t][c+1];
             int pulseWidthTicks16 = pulseEnd - pulseStart;
 
-            if ( pulseWidthTicks16 < minSweepPulseWidth ||     // ticks
-                 pulseWidthTicks16 > maxSweepPulseWidth ||     // ticks
-                 pulseStart < sweepStartTicks           ||     // ticks
-                 pulseEnd   > sweepEndTicks ) {                // ticks
+            // TODO: deport data verification to higher level?
+//          if ( pulseWidthTicks16 < minSweepPulseWidth ||     // ticks
+//               pulseWidthTicks16 > maxSweepPulseWidth ||     // ticks
+//               pulseStart < sweepStartTicks           ||     // ticks
+//               pulseEnd   > sweepEndTicks ) {                // ticks
 
-                // mark the measures if they are invalid
-                pulseStart = 0;
-                pulseEnd = 0;
-            }
+//              // mark the measures if they are invalid
+//              pulseStart = 0;
+//              pulseEnd = 0;
+//          }
 
             // get centroid + remove 2 LSb (non-significant) to stay in 16bit
             int centroid = ((pulseEnd+pulseStart)/2) >> 2;

@@ -19,9 +19,13 @@ the following steps explain how to do it anyway.
 
 https://www.arduino.cc/en/Main/Software
 
-2) Install the nRF52 support - read carefully these instructions:
+2) Install the nRF52 support - read carefully these instructions (no need to follow the "From git" instructions):
 
 https://github.com/sandeepmistry/arduino-nRF5#installing
+
+3) Install the BLE peripheral library with these instructions:
+
+https://github.com/sandeepmistry/arduino-BLEPeripheral/#using-the-arduino-ide-library-manager
 
 
 ## Compile

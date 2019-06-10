@@ -1,20 +1,24 @@
 #include <SPI.h> // BLEPeripheral depends on SPI
 #include <BLEPeripheral.h>
 #include "BLESerial.h"
-BLESerial BLESerial;
 
 #include "pulse.h"
 #include "pinout.h" // important to keep it last for the undefs to work
 #include "communication.h"
 #include "firmware.h"
 
+byte message[10];
+BLESerial bleSerial;
+#define BLE_NAME "HT-UART"
+
 int LEDpins[] = {14, 12}; // G, B
 int LEDNum = sizeof LEDpins / sizeof LEDpins[0];
 
-
-void pinsSetup() {
+void pinsSetup()
+{
     // LEDs & debug pins
-    for (int i=0; i<LEDNum; i++) {
+    for (int i = 0; i < LEDNum; i++)
+    {
         pinMode(LEDpins[i], OUTPUT);
         digitalWrite(LEDpins[i], 0); // 0 = ON (inverted logic)
         delay(100);
@@ -24,62 +28,63 @@ void pinsSetup() {
     pinMode(PIN_SERIAL_RX, OUTPUT); // TODO REMOVE (TMP)
 }
 
-void serialSetup() {
+void serialSetup()
+{
     Serial.setPins(0, PIN_SERIAL_TX); // RX is not used here
     Serial.begin(230400);
-    while (!Serial); // wait
+    while (!Serial) ; // wait
     Serial.println("Serial OK!");
 }
 
-void wirelessSetup() {
+void wirelessSetup()
+{
     Serial.println("Connect to BLE-UART...");
-    BLESerial.setLocalName("HT-UART");
-    BLESerial.begin();
+    bleSerial.setLocalName(BLE_NAME);
+    bleSerial.setDeviceName(BLE_NAME);
+    bleSerial.setConnectionInterval(0x0006, 0x0006);
+    bleSerial.begin();
 }
 
-void sendPulseData() {
-    // Send binary data:
+void sendPulseData()
+{
 
-    DEBUG_WRITE(0xFF); DEBUG_WRITE(0xFF);         // send start headers
-
-    uint8_t base_axis = pulse_data.baseID << 1  |  pulse_data.axis;
-    DEBUG_WRITE(base_axis);                        // send base ID and axis
-    if (BLESerial)
-        BLESerial.write(base_axis);
-
-    for (int t = 0; t < 2; t++) {                   // send captures
-        for (int c = 0; c < sensors_num; c += 2) {
-
-            // Invalid pulse by default
+    // Send binary metadata (base ID and axis)
+    uint8_t base_axis = pulse_data.baseID << 1 | pulse_data.axis;
+    message[0] = base_axis;
+    message[1] = 0;
+    for (int t = 0, i = 0; t < 2; t++)
+    {   
+        // send captures
+        for (int c = 0; c < sensors_num; c += 2, i++)
+        {
             int pulseStart = pulse_data.sweep_captures[t][c];
-            int pulseEnd = pulse_data.sweep_captures[t][c+1];
+            int pulseEnd = pulse_data.sweep_captures[t][c + 1];
             int pulseWidthTicks16 = pulseEnd - pulseStart;
-
             // TODO: deport data verification to higher level?
-//          if ( pulseWidthTicks16 < minSweepPulseWidth ||     // ticks
-//               pulseWidthTicks16 > maxSweepPulseWidth ||     // ticks
-//               pulseStart < sweepStartTicks           ||     // ticks
-//               pulseEnd   > sweepEndTicks ) {                // ticks
-
-//              // mark the measures if they are invalid
-//              pulseStart = 0;
-//              pulseEnd = 0;
-//          }
+            if (pulseWidthTicks16 < minSweepPulseWidth || // ticks
+                pulseWidthTicks16 > maxSweepPulseWidth || // ticks
+                pulseStart < sweepStartTicks ||           // ticks
+                pulseEnd > sweepEndTicks)                 // ticks
+            {
+                // mark the measures if they are invalid
+                pulseStart = 0;
+                pulseEnd = 0;
+            }
 
             // get centroid + remove 2 LSb (non-significant) to stay in 16bit
             // TODO: use differential loss-less compression
-            int centroid = ((pulseEnd+pulseStart)/2) >> 2;
-
-            DEBUG_WRITE((centroid >> 0) & 0xFF);    // LSB first
-            DEBUG_WRITE((centroid >> 8) & 0xFF);    // MSB last
-
-            if (BLESerial) {
-                BLESerial.write((centroid >> 0) & 0xFF);    // LSB first
-                BLESerial.write((centroid >> 8) & 0xFF);    // MSB last
-            }
+            int centroid = ((pulseEnd + pulseStart) / 2) >> 2;
+            message[i * 2 + 2] = (centroid >> 8) & 0xFF; // MSB first
+            message[i * 2 + 3] = (centroid >> 0) & 0xFF; // LSB last
+            message[1] += centroid & 0xFF;               // add LSB to checksum
         }
     }
-    if (BLESerial)
-        BLESerial.write('\n');
-}
 
+    // set the high-bits and metadata on message separator (base/axis + checksum)
+    message[0] = 0x80 | (message[0] << 5) & 0x60 | (message[1] >> 4) & 0x0F;
+    message[1] = 0x80 | (message[1] >> 0) & 0x0F;
+    if (bleSerial)
+        bleSerial.write(message, 10);
+    else
+        Serial.write(message, 10);
+}

@@ -54,6 +54,7 @@ void TS4231::ts_digitalWrite(int pin, uint8_t write_val) {
 //the E and D outputs if TS4231 timing parameters are being violated.  Consult
 //the TS4231 datasheet for more information on timing parameters.  It is recommended
 //that any added delay be no longer than approximately 1us.
+  delayMicroseconds(1);
   }
 
 unsigned long TS4231::ts_millis() {

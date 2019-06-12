@@ -32,13 +32,12 @@ void serialSetup()
 {
     Serial.setPins(0, PIN_SERIAL_TX); // RX is not used here
     Serial.begin(230400);
-    while (!Serial) ; // wait
     Serial.println("Serial OK!");
 }
 
 void wirelessSetup()
 {
-    Serial.println("Connect to BLE-UART...");
+    Serial.println("Starting BLE-UART...");
     bleSerial.setLocalName(BLE_NAME);
     bleSerial.setDeviceName(BLE_NAME);
     bleSerial.setConnectionInterval(0x0006, 0x0006);
@@ -47,13 +46,12 @@ void wirelessSetup()
 
 void sendPulseData()
 {
-
     // Send binary metadata (base ID and axis)
     uint8_t base_axis = pulse_data.baseID << 1 | pulse_data.axis;
     message[0] = base_axis;
     message[1] = 0;
     for (int t = 0, i = 0; t < 2; t++)
-    {   
+    {
         // send captures
         for (int c = 0; c < sensors_num; c += 2, i++)
         {
@@ -83,8 +81,10 @@ void sendPulseData()
     // set the high-bits and metadata on message separator (base/axis + checksum)
     message[0] = 0x80 | (message[0] << 5) & 0x60 | (message[1] >> 4) & 0x0F;
     message[1] = 0x80 | (message[1] >> 0) & 0x0F;
-    if (bleSerial)
+    if (bleSerial) {
         bleSerial.write(message, 10);
-    else
+        bleSerial.poll();
+    }
+    if (Serial)
         Serial.write(message, 10);
 }

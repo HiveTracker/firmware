@@ -14,10 +14,6 @@ TS4231 devices[] = { TS4231(sensors_e[0], sensors_d[0]),
 void photosensorSetup() {
     uint8_t config_result = -1;
 
-    // Turn on LED warnings (inverted logic)
-    digitalWrite(LED_G, 1);
-    digitalWrite(LED_B, 1);
-
     for (int i = 0; i < sensors_num; i++) {
         bool exit = 0;
 
@@ -25,6 +21,8 @@ void photosensorSetup() {
             DEBUG_PRINTLN(i);
             if (!devices[i].waitForLight(light_timeout)) {
                 DEBUG_PRINTLN("TIMEOUT");
+                static bool state = 0;
+                digitalWrite(LED_G, state = !state); // display problem
                 continue;
             }
 
@@ -67,8 +65,8 @@ void photosensorSetup() {
 
     if (config_result != CONFIG_PASS) {
         while(1) {
-            digitalWrite(LED_B, !digitalRead(LED_B)); // toggle
-            digitalWrite(LED_G, !digitalRead(LED_G)); // toggle
+            static bool state = 0;
+            digitalWrite(LED_G, state = !state); // display problem
             DEBUG_PRINTLN("BUS_FAIL (or unknown error)");
             delay(500);
         }

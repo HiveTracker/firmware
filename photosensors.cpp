@@ -64,12 +64,7 @@ void photosensorSetup() {
     }
 
     if (config_result != CONFIG_PASS) {
-        while(1) {
-            static bool state = 0;
-            digitalWrite(LED_G, state = !state); // display problem
-            DEBUG_PRINTLN("BUS_FAIL (or unknown error)");
-            delay(500);
-        }
+        DEBUG_PRINTLN("TS4231 BUS_FAIL -> Let's assume we use the TS4112");
     }
 
     // Turn off LED warnings (inverted logic)
